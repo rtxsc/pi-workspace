@@ -4,6 +4,7 @@ import board
 import digitalio
 import busio as io
 import subprocess
+import os
 import adafruit_ssd1306
 import netifaces
 import json
@@ -94,16 +95,24 @@ try:
         oled.text(local_ip, 0, 0, True)
         oled.text('WiFi Connected', 0, 10, True)
         # oled.text(local_ip, 0, 20, True)
-        oled.show()
-        
-        output = subprocess.check_output(['iwgetid'])
-        out = output.split(b'"')[1]
-        out_str = out.decode('UTF-8')
-        print(out_str)
-        oled.text(out_str, 0, 20, True)
+        returnVal = os.system('iwgetid')
+        oled.text('iwgetid:'+ str(returnVal), 0, 20, True)
         oled.show()
         sleep(1)
         oled.fill(0)
+        oled.text(local_ip, 0, 0, True)
+        oled.text('WiFi Connected', 0, 10, True)
+        # print(returnVal)
+        if(returnVal == 0):
+            output = subprocess.check_output(['iwgetid'])
+            out = output.split(b'"')[1]
+            out_str = out.decode('UTF-8')
+            print(out_str)
+            oled.text(out_str, 0, 20, True)
+            oled.show()
+            sleep(1)
+            oled.fill(0)
+
 
 #     print("Connected Wifi SSID: " + output.split('"')[1])
 except Exception as e:
