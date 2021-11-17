@@ -106,9 +106,10 @@ def drawTriangle():
 
 def drawLoadingBar():
     oled.fill(0)
-    for x in range(0,127): # 32--64--96
-        oled.pixel(x,31,1)
-        oled.show()
+    for x in range(63,65): # 32--64--96
+        for y in range(0,31):
+            oled.pixel(x,y,1)
+            oled.show()
 
 def checkForIPandSSID():
     global copy_ip
@@ -181,6 +182,7 @@ def displayIP():
     oled.show()
 
 try:
+    # sleep(10) # using crontab sleep method instead so this line is omitted
     try:
         i2c = io.I2C(board.SCL, board.SDA)
         # once i2c succesfully initialized, then proceed with i2c object declaration
@@ -200,30 +202,29 @@ try:
             else:
                 i2cErrorSignal.value = False
             sleep(0.1)
+    drawLoadingBar()
     run_led_maker_hat_base()
+
     oled.fill(0)  
-    oled.text('crontab startup', 0, 0, True)
-    oled.text('running connect2wifi', 0, 10, True)
-    oled.text('crontab sleep 10', 0, 20, True)
+    oled.text('crontab again', 0, 0, True)
+    oled.text('repeatconnect2wifi', 0, 10, True)
+    oled.text('crontab sleep 30', 0, 20, True)
     oled.show()
     sleep(1)
 
-    # drawTriangle()
-    # drawLoadingBar()
+    drawTriangle()
     oled.fill(0)  
     oled.text('Hello from Pi3B+', 0, 0, True)
-    oled.text('Connecting to WiFi', 0, 10, True)
-    oled.text('This might fail', 0, 20, True)
     # oled.text('123456789ABCDEFGHIJKLMN', 0, 0, True)
     oled.show()
     sleep(0.5)
+
     checkForIPandSSID()
     displayIP()
 
 except Exception as e:
     oled.fill(0)
-    oled.text('IP:'+local_ip, 0, 0, True)
-    oled.text('SSID:'+ssid_str, 0, 10, True)
+    oled.text(local_ip, 0, 0, True)
     oled.show()
 
     count = 1
@@ -232,37 +233,30 @@ except Exception as e:
     buzz.value = False
     sleep(0.5)
     # print("Exception:" , e)
-    oled.fill(0)  
     msg = str(e)
-
-    # use this line to display only a portion of msg
-    oled.text(local_ip, 0, 0, True)
-    oled.text(msg, 0, 10, True)
-    oled.show()
-    # uncomment the following for the animated text display
-
-    # if(len(msg) > MAX_CHAR_DISPLAYABLE):
-    #     oled.text(local_ip, 0, 0, True)
-    #     oled.text('Exception len:'+str(len(msg)), 0, 10, True)
-    #     for i in range(0,len(msg)):
-    #         if(i < MAX_CHAR_DISPLAYABLE):
-    #             oled.text(msg[0:i], 0, 20, True)
-    #         else:
-    #             oled.fill(0)
-    #             oled.text(local_ip, 0, 0, True)
-    #             oled.text('Exception len:'+str(len(msg)), 0, 10, True)
-    #             lengthOfChar = len(msg[MAX_CHAR_DISPLAYABLE:i])
-    #             if(lengthOfChar == MAX_CHAR_DISPLAYABLE*count):
-    #                 count += 1
-    #             oled.text(msg[MAX_CHAR_DISPLAYABLE*count:i], 0, 20, True)
-    #         oled.show()
-    #     oled.show()
-    # else:
-    #     oled.text(local_ip, 0, 0, True)
-    #     oled.show()
-    #     oled.text('Exception len:'+str(len(msg)), 0, 10, True)
-    #     oled.text(msg, 0, 20, True)
-    #     oled.show()
+    if(len(msg) > MAX_CHAR_DISPLAYABLE):
+        oled.text(local_ip, 0, 0, True)
+        oled.text('Exception len:'+str(len(msg)), 0, 10, True)
+        for i in range(0,len(msg)):
+            if(i < MAX_CHAR_DISPLAYABLE):
+                oled.text(msg[0:i], 0, 20, True)
+            else:
+                oled.fill(0)
+                oled.text(local_ip, 0, 0, True)
+                oled.text('Exception len:'+str(len(msg)), 0, 10, True)
+                lengthOfChar = len(msg[MAX_CHAR_DISPLAYABLE:i])
+                if(lengthOfChar == MAX_CHAR_DISPLAYABLE*count):
+                    count += 1
+                oled.text(msg[MAX_CHAR_DISPLAYABLE*count:i], 0, 20, True)
+           
+            oled.show()
+        oled.show()
+    else:
+        oled.text(local_ip, 0, 0, True)
+        oled.show()
+        oled.text('Exception len:'+str(len(msg)), 0, 10, True)
+        oled.text(msg, 0, 20, True)
+        oled.show()
 
 
 
