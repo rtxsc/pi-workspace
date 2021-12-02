@@ -228,7 +228,7 @@ except Exception as e:
 
     count = 1
     buzz.value = True
-    sleep(1)
+    sleep(0.25)
     buzz.value = False
     sleep(0.5)
     # print("Exception:" , e)
