@@ -7,12 +7,15 @@ import subprocess
 import os
 from time import sleep
 
+restart_pin = DigitalInOut(board.D23)
 shut_down_pin = DigitalInOut(board.D27) # any pin!
+restart_pin.direction = Direction.INPUT
 shut_down_pin.direction = Direction.INPUT
 # modified on 3.11.2021 referred via https://www.npmjs.com/package/onoff
 # https://github.com/fivdi/onoff/wiki/Enabling-Pullup-and-Pulldown-Resistors-on-The-Raspberry-Pi
 
 shut_down_pin.pull = Pull.UP # good to know this method anyway
+restart_pin.pull = Pull.UP
 
 buzz = DigitalInOut(board.D26)
 buzz.direction = Direction.OUTPUT
@@ -53,6 +56,13 @@ def shut_down():
     output = process.communicate()[0]
     print(output)
 
+def restart():
+    print("Restarting Pi via D23 interrupt")
+    command = "/usr/bin/sudo /sbin/reboot -h now"
+    import subprocess
+    process = subprocess.Popen(command.split(), stdout=subprocess.PIPE)
+    output = process.communicate()[0]
+    print(output)
 
 def checkForIPandSSID():
     global local_ip
@@ -70,8 +80,7 @@ def checkForIPandSSID():
     output = subprocess.check_output(['iwgetid'])
     out = output.split(b'"')[1]
     ssid_str = out.decode('UTF-8')
-  
- 
+
 buzz.value = True
 sleep(0.05)
 buzz.value = False
@@ -87,18 +96,28 @@ try:
     checkForIPandSSID()
     while True:
         pinState = shut_down_pin.value
-        print(pinState)
+        pinRestart = restart_pin.value
+        # print(pinState, pinRestart)
+        if(pinRestart == False):
+            beep_twice()
+            beep_twice()
+            oled.fill(0)
+            oled.text('RESTARTING PI NOW',0,0,True)
+            oled.text('D26 Interrupt Detected',0,0,True)
+            restart()
+
+
         if(pinState == False):
             beep_twice()
-            oled.fill(0)  
+            oled.fill(0)
             oled.text('SHUTTING DOWN NOW', 0, 0, True)
             oled.text('Bye-bye from Pi', 0, 10, True)
             oled.text('See You Soon', 0, 20, True)
             oled.show()
             shut_down()
         else:
-            oled.fill(0) 
-            oled.text('Waiting for Shutdown', 0, 0, True)
+            oled.fill(0)
+            oled.text('D23:REST D27:SHUT', 0, 0, True)
             oled.text('>>'+ssid_str+'<<', 0, 10, True)
             oled.text('>>'+local_ip+'<<', 0, 20, True)
             oled.show()
