@@ -104,6 +104,7 @@ try:
             oled.fill(0)
             oled.text('RESTARTING PI NOW',0,0,True)
             oled.text('D26 Interrupt Detected',0,0,True)
+            sleep(2)
             restart()
 
 
@@ -114,6 +115,7 @@ try:
             oled.text('Bye-bye from Pi', 0, 10, True)
             oled.text('See You Soon', 0, 20, True)
             oled.show()
+            sleep(2)
             shut_down()
         else:
             oled.fill(0)
