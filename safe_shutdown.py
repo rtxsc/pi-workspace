@@ -3,7 +3,7 @@ import board
 from digitalio import DigitalInOut, Direction, Pull
 import adafruit_ssd1306
 import busio as io
-import subprocess
+import shlex, subprocess
 import os
 from time import sleep
 
@@ -21,6 +21,14 @@ buzz = DigitalInOut(board.D26)
 buzz.direction = Direction.OUTPUT
 i2cErrorSignal = DigitalInOut(board.D21)
 i2cErrorSignal.direction = Direction.OUTPUT
+
+def get_uptime():
+    cmd = "uptime -p"
+    args = shlex.split(cmd)
+    p = subprocess.Popen(args, stdout=subprocess.PIPE)
+    if p is not None:
+        output = p.communicate()[0]
+        return output.decode('utf-8')
 
 def beep_twice():
     buzz.value = True
@@ -100,13 +108,14 @@ try:
         # print(pinState, pinRestart)
         if(pinRestart == False):
             beep_twice()
+            sleep(0.5)
             beep_twice()
             oled.fill(0)
             oled.text('RESTARTING PI NOW',0,0,True)
             oled.text('D26 Interrupt Detected',0,0,True)
+            oled.show()
             sleep(2)
             restart()
-
 
         if(pinState == False):
             beep_twice()
@@ -118,11 +127,18 @@ try:
             sleep(2)
             shut_down()
         else:
-            oled.fill(0)
-            oled.text('D23:REST D27:SHUT', 0, 0, True)
-            oled.text('>>'+ssid_str+'<<', 0, 10, True)
-            oled.text('>>'+local_ip+'<<', 0, 20, True)
-            oled.show()
+            for i in range (0,127):
+                oled.fill(0)
+                if i < 64:
+                    oled.text('PRESS D23 to RESTART', 0, 0, True)
+                    oled.text('>>'+ssid_str+'<<', 0, 10, True)
+                else:
+                    oled.text('PRESS D27 to SHUTDOWN', 0, 0, True)
+                    oled.text(get_uptime(), 0, 10, True)
+
+                oled.text('>>'+local_ip+'<<', 0, 20, True)
+                oled.text('--',i, 27, True)
+                oled.show()
         sleep(1)
 
 except KeyboardInterrupt:
