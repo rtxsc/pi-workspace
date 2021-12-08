@@ -126,7 +126,7 @@ try:
                 beep_twice()
                 oled.text('RESTARTING PI NOW',0,0,True)
                 oled.text('D26 Interrupt Detected',0,10,True)
-                oled.text('sudo reboot now',0,10,True)
+                oled.text('sudo reboot now',0,20,True)
                 oled.show()
                 sleep(2)
                 restart()
