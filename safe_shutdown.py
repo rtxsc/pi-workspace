@@ -103,42 +103,43 @@ sleep(0.1)
 try:
     checkForIPandSSID()
     while True:
-        pinState = shut_down_pin.value
-        pinRestart = restart_pin.value
-        # print(pinState, pinRestart)
-        if(pinRestart == False):
-            beep_twice()
-            sleep(0.5)
-            beep_twice()
+        for i in range (0,127):
             oled.fill(0)
-            oled.text('RESTARTING PI NOW',0,0,True)
-            oled.text('D26 Interrupt Detected',0,0,True)
-            oled.show()
-            sleep(2)
-            restart()
+            if i < 64:
+                oled.text('PRESS D23 to RESTART', 0, 0, True)
+                oled.text('>>'+ssid_str+'<<', 0, 10, True)
+            else:
+                oled.text('PRESS D27 to SHUTDOWN', 0, 0, True)
+                oled.text(get_uptime(), 0, 10, True)
 
-        if(pinState == False):
-            beep_twice()
-            oled.fill(0)
-            oled.text('SHUTTING DOWN NOW', 0, 0, True)
-            oled.text('Bye-bye from Pi', 0, 10, True)
-            oled.text('See You Soon', 0, 20, True)
+            oled.text('>>'+local_ip+'<<', 0, 20, True)
+            oled.text('--',i, 27, True)
             oled.show()
-            sleep(2)
-            shut_down()
-        else:
-            for i in range (0,127):
+
+            pinState = shut_down_pin.value
+            pinRestart = restart_pin.value
+            # print(pinState, pinRestart)
+            if(pinRestart == False):
                 oled.fill(0)
-                if i < 64:
-                    oled.text('PRESS D23 to RESTART', 0, 0, True)
-                    oled.text('>>'+ssid_str+'<<', 0, 10, True)
-                else:
-                    oled.text('PRESS D27 to SHUTDOWN', 0, 0, True)
-                    oled.text(get_uptime(), 0, 10, True)
-
-                oled.text('>>'+local_ip+'<<', 0, 20, True)
-                oled.text('--',i, 27, True)
+                beep_twice()
+                sleep(0.5)
+                beep_twice()
+                oled.text('RESTARTING PI NOW',0,0,True)
+                oled.text('D26 Interrupt Detected',0,10,True)
+                oled.text('sudo reboot now',0,10,True)
                 oled.show()
+                sleep(2)
+                restart()
+
+            if(pinState == False):
+                beep_twice()
+                oled.fill(0)
+                oled.text('SHUTTING DOWN NOW', 0, 0, True)
+                oled.text('Bye-bye from Pi', 0, 10, True)
+                oled.text('See You Soon', 0, 20, True)
+                oled.show()
+                sleep(2)
+                shut_down()
         sleep(1)
 
 except KeyboardInterrupt:
