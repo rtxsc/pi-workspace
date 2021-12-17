@@ -9,7 +9,8 @@ import netifaces
 import json
 import socket
 import sys
-import datetime
+from datetime import datetime
+
 
 MAX_CHAR_DISPLAYABLE  = 21
 local_ip = "NULL"
@@ -17,7 +18,6 @@ copy_ip = "NULL"
 ssid_str = "NULL"
 from time import sleep
 from digitalio import DigitalInOut
-
 
 DEFINED_PI_ZERO_W = False
 
@@ -191,7 +191,15 @@ try:
         i2c = io.I2C(board.SCL, board.SDA)
         # once i2c succesfully initialized, then proceed with i2c object declaration
         oled = adafruit_ssd1306.SSD1306_I2C(128, 32, i2c)
-    except (OSError,ValueError,NameError):
+    except (OSError,ValueError,NameError) as e:
+        e = str(e)
+        print("Exception Caught: %s\n" %  e)
+        now = datetime.now()
+        dt_string = now.strftime("%d/%m/%Y, %H:%M:%S, ")
+        f = open("repeatconnect2wifi_log.txt", "a")
+        f.write(str(dt_string + e + "\n"))
+        f.close()
+
         # print("Oops!", sys.exc_info()[0], "occurred.")
         buzz.value = True
         sleep(0.1)

@@ -9,7 +9,7 @@ import netifaces
 import json
 import socket
 import sys
-import datetime
+from datetime import datetime
 
 MAX_CHAR_DISPLAYABLE  = 21
 local_ip = "NULL"
@@ -200,7 +200,16 @@ try:
         i2c = io.I2C(board.SCL, board.SDA)
         # once i2c succesfully initialized, then proceed with i2c object declaration
         oled = adafruit_ssd1306.SSD1306_I2C(128, 32, i2c)
-    except (OSError,ValueError,NameError):
+        
+    except (OSError,ValueError,NameError) as e:
+        e = str(e)
+        print("Exception Caught: %s\n" %  e)
+        now = datetime.now()
+        dt_string = now.strftime("%d/%m/%Y, %H:%M:%S, ")
+        f = open("repeatconnect2wifi_log.txt", "a")
+        f.write(str(dt_string + e + "\n"))
+        f.close()
+
         # print("Oops!", sys.exc_info()[0], "occurred.")
         buzz.value = True
         sleep(0.1)
@@ -222,7 +231,7 @@ try:
     else:
         run_led_maker_hat_base()
 
-    oled.fill(0)  
+    oled.fill(0)
     oled.text('crontab again', 0, 0, True)
     oled.text('repeatconnect2wifi', 0, 10, True)
     oled.text('crontab sleep 30', 0, 20, True)
@@ -230,7 +239,7 @@ try:
     sleep(1)
 
     drawTriangle()
-    oled.fill(0)  
+    oled.fill(0)
     if not DEFINED_PI_ZERO_W:
         oled.text('Hello from Pi 3B+', 0, 0, True)
     else:
@@ -246,7 +255,7 @@ except Exception as e:
     print("Exception Caught: %s\n" %  e)
     now = datetime.now()
     dt_string = now.strftime("%d/%m/%Y, %H:%M:%S, ")
-    f = open("/home/pi/pi-workspace/repeatconnect2wifi_log.txt", "a")
+    f = open("repeatconnect2wifi_log.txt", "a")
     f.write(str(dt_string + e + "\n"))
     f.close()
 

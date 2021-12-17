@@ -6,7 +6,7 @@ import busio as io
 import shlex, subprocess
 import os
 from time import sleep
-import datetime
+from datetime import datetime
 
 DEFINED_PI_ZERO_W = False
 
