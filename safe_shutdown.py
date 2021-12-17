@@ -6,6 +6,7 @@ import busio as io
 import shlex, subprocess
 import os
 from time import sleep
+import datetime
 
 restart_pin = DigitalInOut(board.D23)
 shut_down_pin = DigitalInOut(board.D27) # any pin!
@@ -144,3 +145,12 @@ try:
 
 except KeyboardInterrupt:
     print("Program Halted by Ctrl+C")
+
+except Exception as e:
+    e = str(e)
+    print("Exception Caught: %s\n" %  e)
+    now = datetime.now()
+    dt_string = now.strftime("%d/%m/%Y, %H:%M:%S, ")
+    f = open("safe_shutdown_log.txt", "a")
+    f.write(str(dt_string + e + "\n"))
+    f.close()

@@ -9,6 +9,7 @@ import netifaces
 import json
 import socket
 import sys
+import datetime
 
 MAX_CHAR_DISPLAYABLE  = 21
 local_ip = "NULL"
@@ -223,6 +224,14 @@ try:
     displayIP()
 
 except Exception as e:
+    e = str(e)
+    print("Exception Caught: %s\n" %  e)
+    now = datetime.now()
+    dt_string = now.strftime("%d/%m/%Y, %H:%M:%S, ")
+    f = open("repeatconnect2wifi_log.txt", "a")
+    f.write(str(dt_string + e + "\n"))
+    f.close()
+
     oled.fill(0)
     oled.text(local_ip, 0, 0, True)
     oled.show()
