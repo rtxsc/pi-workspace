@@ -8,8 +8,25 @@ import os
 from time import sleep
 import datetime
 
-restart_pin = DigitalInOut(board.D23)
-shut_down_pin = DigitalInOut(board.D27) # any pin!
+DEFINED_PI_ZERO_W = False
+
+def detect_model() -> str:
+    global DEFINED_PI_ZERO_W
+    with open('/proc/device-tree/model') as f:
+        model = f.read()
+        if "Raspberry Pi Zero W" in model:
+            DEFINED_PI_ZERO_W = True
+        return model
+
+detect_model() # check type of Pi
+
+if DEFINED_PI_ZERO_W:
+    restart_pin = DigitalInOut(board.D16) # for Pi Zero W
+    shut_down_pin = DigitalInOut(board.D20) # for Pi Zero W
+else:
+    restart_pin = DigitalInOut(board.D23) # for Pi 3B Plus / 3B standard
+    shut_down_pin = DigitalInOut(board.D27) # for Pi 3B Plus / 3B standard
+
 restart_pin.direction = Direction.INPUT
 shut_down_pin.direction = Direction.INPUT
 # modified on 3.11.2021 referred via https://www.npmjs.com/package/onoff
@@ -107,10 +124,17 @@ try:
         for i in range (0,127):
             oled.fill(0)
             if i < 64:
-                oled.text('PRESS D23 to RESTART', 0, 0, True)
+                if not DEFINED_PI_ZERO_W:
+                    oled.text('PRESS D23 to RESTART', 0, 0, True)
+                else:
+                    oled.text('PRESS D16 to RESTART', 0, 0, True)
                 oled.text('>>'+ssid_str+'<<', 0, 10, True)
             else:
-                oled.text('PRESS D27 to SHUTDOWN', 0, 0, True)
+                if not DEFINED_PI_ZERO_W:
+                    oled.text('PRESS D27 to SHUTDOWN', 0, 0, True)
+                else:
+                    oled.text('PRESS D20 to SHUTDOWN', 0, 0, True)
+
                 oled.text(get_uptime(), 0, 10, True)
 
             oled.text('>>'+local_ip+'<<', 0, 20, True)
@@ -151,6 +175,6 @@ except Exception as e:
     print("Exception Caught: %s\n" %  e)
     now = datetime.now()
     dt_string = now.strftime("%d/%m/%Y, %H:%M:%S, ")
-    f = open("safe_shutdown_log.txt", "a")
+    f = open("/home/pi/pi-workspace/safe_shutdown_log.txt", "a")
     f.write(str(dt_string + e + "\n"))
     f.close()

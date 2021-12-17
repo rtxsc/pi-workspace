@@ -18,6 +18,18 @@ ssid_str = "NULL"
 from time import sleep
 from digitalio import DigitalInOut
 
+DEFINED_PI_ZERO_W = False
+
+def detect_model() -> str:
+    global DEFINED_PI_ZERO_W
+    with open('/proc/device-tree/model') as f:
+        model = f.read()
+        if "Raspberry Pi Zero W" in model:
+            DEFINED_PI_ZERO_W = True
+        return model
+
+detect_model() # check type of Pi
+
 
 # sda = digitalio.DigitalInOut(board.D2)
 # scl = digitalio.DigitalInOut(board.D3)
@@ -204,7 +216,11 @@ try:
                 i2cErrorSignal.value = False
             sleep(0.1)
     drawLoadingBar()
-    run_led_maker_hat_base()
+
+    if DEFINED_PI_ZERO_W:
+        run_led()
+    else:
+        run_led_maker_hat_base()
 
     oled.fill(0)  
     oled.text('crontab again', 0, 0, True)
@@ -215,8 +231,10 @@ try:
 
     drawTriangle()
     oled.fill(0)  
-    oled.text('Hello from Pi3B+', 0, 0, True)
-    # oled.text('123456789ABCDEFGHIJKLMN', 0, 0, True)
+    if not DEFINED_PI_ZERO_W:
+        oled.text('Hello from Pi 3B+', 0, 0, True)
+    else:
+        oled.text('Hello from Zero W', 0, 0, True)
     oled.show()
     sleep(0.5)
 
@@ -228,7 +246,7 @@ except Exception as e:
     print("Exception Caught: %s\n" %  e)
     now = datetime.now()
     dt_string = now.strftime("%d/%m/%Y, %H:%M:%S, ")
-    f = open("repeatconnect2wifi_log.txt", "a")
+    f = open("/home/pi/pi-workspace/repeatconnect2wifi_log.txt", "a")
     f.write(str(dt_string + e + "\n"))
     f.close()
 
@@ -257,7 +275,6 @@ except Exception as e:
                 if(lengthOfChar == MAX_CHAR_DISPLAYABLE*count):
                     count += 1
                 oled.text(msg[MAX_CHAR_DISPLAYABLE*count:i], 0, 20, True)
-           
             oled.show()
         oled.show()
     else:
