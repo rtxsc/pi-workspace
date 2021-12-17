@@ -1,1 +1,5 @@
+<<<<<<< HEAD
 17/12/2021, 19:39:04, [Errno 2] No such file or directory: 'font5x8.bin'
+=======
+17/12/2021, 18:59:20, division by zero
+>>>>>>> db42aaaf4e11325a968fb5af04e4feea10294b95
